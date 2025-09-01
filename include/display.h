@@ -6,9 +6,13 @@
 // - "oled" must be mapped in the overlay or device tree
 #define I2C0_NODE DT_NODELABEL(oled)
 
+// Init commands
 // "oled" dimensions
-#define PAGES 8
-#define WIDTH 128
+#define OLED_PAGES 8
+#define OLED_HEIGHT 64
+#define OLED_WIDTH 128
+// this = OLED_WIDTH / 8
+#define OLED_BYTES_PER_ROW 16
 
 // "oled" commands
 #define DISPLAY_OFF 0xAE
@@ -29,10 +33,15 @@
 #define CHARGE_PUMP_ON 0x14
 
 #define MEMORY_WRITE_MODE 0x20
-#define MEMORY_WRITE_BY_PAGE 0x02
+// 0x00 is go right along the row then go next at the end
+#define MEMORY_WRITE_BY_PAGE 0x00
 
-#define HORIZONTAL_ORIENTATION 0xA0
-#define VERTICAL_ORIENTATION 0xC0
+// 0xA1 start left
+// 0xA0 start right
+#define HORIZONTAL_ORIENTATION 0xA1
+// 0xC8 start top
+// 0xC8 start bottom
+#define VERTICAL_ORIENTATION 0xC8
 
 #define COM_PINS 0xDA
 #define COM_PINS_VALUE 0x12
@@ -54,8 +63,15 @@
 // Just means instead of 0 off, 1 on -> 0 on, 1 off
 #define INVERSE_DISPLAY 0xA7
 
+// Flushing
+#define FLUSH_BYTES 16
+
 extern const struct i2c_dt_spec display_i2c;
 
-void init_display(const struct i2c_dt_spec *device);
+void init_display(const struct i2c_dt_spec *device_spec);
 
-int write_pixel(const uint8_t page, const uint8_t y, const uint8_t value);
+// int write_pixel(const uint8_t page, const uint8_t y, const uint8_t value);
+
+void draw_bitmap(const uint8_t *bitmap, uint8_t width, uint8_t height, uint8_t bytes_per_row);
+
+void flush_buffer(const struct i2c_dt_spec *device_spec);
